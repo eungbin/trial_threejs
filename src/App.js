@@ -12,9 +12,35 @@ function App() {
   const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
   const cube = new THREE.Mesh(geometry, material);
 
+
   renderer.setSize(window.innerWidth, window.innerHeight);
   scene.add(cube);
-  camera.position.z = 10;
+  scene.background = new THREE.Color(0x19324a);
+  camera.position.z = 20;
+
+  const getRandom = (limit) => {
+    if(Math.floor(Math.random()*2) === 0) {
+      return Math.random() * limit;
+    } else {
+      return Math.random() * limit * -1;
+    }
+  }
+
+  for(let i=0; i<50000; i++) {
+    const starMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+    const star = new THREE.Mesh(geometry, starMaterial);
+    
+    const positionX = getRandom(2000);
+    const positionY = getRandom(2000);
+    const positionZ = getRandom(2000);
+
+    star.position.x = positionX;
+    star.position.y = positionY;
+    star.position.z = positionZ;
+
+    scene.add(star);
+  }
+  
 
   useEffect(() => {
     document.body.appendChild(renderer.domElement);
@@ -28,9 +54,9 @@ function App() {
       } else if(e.key === 'd') {
         camera.position.x += 1;
       } else if(e.key === 'q') {
-        camera.rotateY(-0.1);
-      } else if(e.key === 'e') {
         camera.rotateY(0.1);
+      } else if(e.key === 'e') {
+        camera.rotateY(-0.1);
       }
     });
 
@@ -52,6 +78,7 @@ function App() {
 
   return (
     <div className="App">
+      
     </div>
   );
 }
