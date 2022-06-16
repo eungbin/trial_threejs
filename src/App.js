@@ -12,13 +12,16 @@ function App() {
   const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
   const cube = new THREE.Mesh(geometry, material);
 
+  let mouseDownX;
+  let mouseDownY;
+
 
   renderer.setSize(window.innerWidth, window.innerHeight);
   scene.add(cube);
   scene.background = new THREE.Color(0x19324a);
   camera.position.z = 20;
 
-  const getRandom = (limit) => {
+  const getRandomPosition = (limit) => {
     if(Math.floor(Math.random()*2) === 0) {
       return Math.random() * limit;
     } else {
@@ -30,9 +33,9 @@ function App() {
     const starMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
     const star = new THREE.Mesh(geometry, starMaterial);
     
-    const positionX = getRandom(2000);
-    const positionY = getRandom(2000);
-    const positionZ = getRandom(2000);
+    const positionX = getRandomPosition(2000);
+    const positionY = getRandomPosition(2000);
+    const positionZ = getRandomPosition(2000);
 
     star.position.x = positionX;
     star.position.y = positionY;
@@ -54,15 +57,27 @@ function App() {
       } else if(e.key === 'd') {
         camera.position.x += 1;
       } else if(e.key === 'q') {
+        // total 3.2
         camera.rotateY(0.1);
       } else if(e.key === 'e') {
         camera.rotateY(-0.1);
       }
     });
 
-    window.addEventListener('dragStart', function(e) {
-      console.log(e);
+    window.addEventListener('mousedown', function(e) {
+      mouseDownX = e.screenX;
+      mouseDownY = e.screenY;
     });
+    window.addEventListener('mouseup', function(e) {
+      const mouseUpX = e.screenX;
+      const mouseUpY = e.screenY;
+
+      const mouseMoveX = mouseUpX - mouseDownX;
+      const mouseMoveY = mouseUpY - mouseDownY;
+
+      camera.rotateY(mouseMoveX / window.innerWidth * 3.2);
+      camera.rotateX(mouseMoveY / window.innerHeight * 3.2);
+    })
   }, []);
 
   const Animate = () => {
