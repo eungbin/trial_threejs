@@ -12,12 +12,24 @@ function App() {
   const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
   const cube = new THREE.Mesh(geometry, material);
 
+  // const planeGeometry = new THREE.PlaneGeometry(30, 1);
+  // const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+  // const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+  
+
   let mouseDownX;
   let mouseDownY;
+  let mouseStat = false;
+
+  let cameraMoveZ = 0;
+  let cameraDirection;
+  let cameraMoving = false;
 
 
   renderer.setSize(window.innerWidth, window.innerHeight);
+
   scene.add(cube);
+  // scene.add(plane);
   scene.background = new THREE.Color(0x19324a);
   camera.position.z = 20;
 
@@ -49,34 +61,45 @@ function App() {
     document.body.appendChild(renderer.domElement);
     window.addEventListener('keydown', function(e) {
       if(e.key === 'w') {
-        camera.position.z -= 1;
-      } else if(e.key ==='s') {
-        camera.position.z += 1;
-      } else if(e.key === 'a') {
-        camera.position.x -= 1;
-      } else if(e.key === 'd') {
-        camera.position.x += 1;
-      } else if(e.key === 'q') {
-        // total 3.2
-        camera.rotateY(0.1);
-      } else if(e.key === 'e') {
-        camera.rotateY(-0.1);
+        cameraMoving = true;
+        cameraMoveZ = -1;
+      }
+      if(e.key ==='s') {
+        cameraMoveZ = 1;
+        cameraMoving = true;
+      }
+      if(e.key === 'a') {
+        camera.translateX(-1);
+      }
+      if(e.key === 'd') {
+        camera.translateX(1);
       }
     });
+    window.addEventListener('keyup', function(e) {
+      cameraMoving = false;
+    })
 
     window.addEventListener('mousedown', function(e) {
+      mouseStat = true;
       mouseDownX = e.screenX;
       mouseDownY = e.screenY;
     });
+    window.addEventListener('mousemove', function(e) {
+      if(mouseStat) {
+        const mouseUpX = e.screenX;
+        const mouseUpY = e.screenY;
+
+        const mouseMoveX = mouseUpX - mouseDownX;
+        const mouseMoveY = mouseUpY - mouseDownY;
+
+        camera.rotateY(mouseMoveX / window.innerWidth * 3.2 * 0.5);
+        camera.rotateX(mouseMoveY / window.innerHeight * 3.2 * 0.5);
+        mouseDownX = e.screenX;
+        mouseDownY = e.screenY;
+      }
+    });
     window.addEventListener('mouseup', function(e) {
-      const mouseUpX = e.screenX;
-      const mouseUpY = e.screenY;
-
-      const mouseMoveX = mouseUpX - mouseDownX;
-      const mouseMoveY = mouseUpY - mouseDownY;
-
-      camera.rotateY(mouseMoveX / window.innerWidth * 3.2);
-      camera.rotateX(mouseMoveY / window.innerHeight * 3.2);
+      mouseStat = false;
     })
   }, []);
 
@@ -85,6 +108,8 @@ function App() {
 
     cube.rotation.x += 0.01;
     cube.rotation.y += 0.01;
+
+    if(cameraMoving) { camera.translateZ(cameraMoveZ); }
 
     renderer.render(scene, camera);
   }
