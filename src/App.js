@@ -1,29 +1,31 @@
 import './App.css';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import * as THREE from 'three';
+import { PointerLockControls } from "./lib/PointerLock";
+import Ready from "./components/Ready";
+import $ from "jquery";
 
 function App() {
   const scene = new THREE.Scene;
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   const renderer = new THREE.WebGLRenderer();
 
+  /* Add First Person View */
+  const controls = new PointerLockControls(camera, document.body);
+
   const geometry = new THREE.BoxGeometry();
   const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
   const cube = new THREE.Mesh(geometry, material);
 
-  // const planeGeometry = new THREE.PlaneGeometry(30, 1);
-  // const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
-  // const plane = new THREE.Mesh(planeGeometry, planeMaterial);
-  
-
-  let mouseDownX;
-  let mouseDownY;
-  let mouseStat = false;
-
-  let cameraMoveZ = 0;
-  let cameraDirection;
-  let cameraMoving = false;
+  let CameraMoving = {
+    cameraMoveZ: 0,
+    cameraMovingZ: false,
+    zSpeed: 1,
+    cameraMoveX: 0,
+    cameraMovingX: false,
+    xSpeed: 1,
+  }
 
 
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -41,7 +43,7 @@ function App() {
     }
   }
 
-  for(let i=0; i<50000; i++) {
+  for(let i=0; i<20000; i++) {
     const starMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
     const star = new THREE.Mesh(geometry, starMaterial);
     
@@ -58,49 +60,47 @@ function App() {
   
 
   useEffect(() => {
+    const instruction = document.getElementById("instruction");
     document.body.appendChild(renderer.domElement);
     window.addEventListener('keydown', function(e) {
       if(e.key === 'w') {
-        cameraMoving = true;
-        cameraMoveZ = -1;
+        CameraMoving.cameraMovingZ = true;
+        CameraMoving.cameraMoveZ = -1 * CameraMoving.zSpeed;
       }
       if(e.key ==='s') {
-        cameraMoveZ = 1;
-        cameraMoving = true;
+        CameraMoving.cameraMoveZ = CameraMoving.zSpeed;
+        CameraMoving.cameraMovingZ = true;
       }
       if(e.key === 'a') {
-        camera.translateX(-1);
+        CameraMoving.cameraMoveX = -1 * CameraMoving.xSpeed;
+        CameraMoving.cameraMovingX = true;
       }
       if(e.key === 'd') {
-        camera.translateX(1);
+        CameraMoving.cameraMoveX = CameraMoving.xSpeed;
+        CameraMoving.cameraMovingX = true;
       }
     });
     window.addEventListener('keyup', function(e) {
-      cameraMoving = false;
-    })
-
-    window.addEventListener('mousedown', function(e) {
-      mouseStat = true;
-      mouseDownX = e.screenX;
-      mouseDownY = e.screenY;
-    });
-    window.addEventListener('mousemove', function(e) {
-      if(mouseStat) {
-        const mouseUpX = e.screenX;
-        const mouseUpY = e.screenY;
-
-        const mouseMoveX = mouseUpX - mouseDownX;
-        const mouseMoveY = mouseUpY - mouseDownY;
-
-        camera.rotateY(mouseMoveX / window.innerWidth * 3.2 * 0.5);
-        camera.rotateX(mouseMoveY / window.innerHeight * 3.2 * 0.5);
-        mouseDownX = e.screenX;
-        mouseDownY = e.screenY;
+      if(e.key === 'w' || e.key === 's') {
+        CameraMoving.cameraMovingZ = false;
+      }
+      if(e.key === 'a' || e.key === 'd') {
+        CameraMoving.cameraMovingX = false;
       }
     });
-    window.addEventListener('mouseup', function(e) {
-      mouseStat = false;
-    })
+
+    instruction.addEventListener('click', function() {
+      controls.lock();
+    });
+
+    controls.addEventListener('lock', function() {
+      instruction.style.display = 'none';
+      $("canvas").css({"opacity": "1"});
+    });
+    controls.addEventListener('unlock', function() {
+      instruction.style.display = '';
+      $("canvas").css({"opacity": "0.9"});
+    });
   }, []);
 
   const Animate = () => {
@@ -109,7 +109,8 @@ function App() {
     cube.rotation.x += 0.01;
     cube.rotation.y += 0.01;
 
-    if(cameraMoving) { camera.translateZ(cameraMoveZ); }
+    if(CameraMoving.cameraMovingZ) { camera.translateZ(CameraMoving.cameraMoveZ); }
+    if(CameraMoving.cameraMovingX) { camera.translateX(CameraMoving.cameraMoveX); }
 
     renderer.render(scene, camera);
   }
@@ -118,7 +119,7 @@ function App() {
 
   return (
     <div className="App">
-      
+      <Ready />
     </div>
   );
 }

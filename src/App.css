@@ -1,5 +1,5 @@
 body {
-  /* overflow: hidden; */
+  color: white;
 }
 
 #webgl-canvas {
@@ -10,4 +10,20 @@ body {
     #071021,
     #19324a
   );
+}
+
+h1 {
+  font-size: 50px;
+}
+
+h2 {
+  font-size: 36px;
+}
+
+h3 {
+  font-size: 20px;
+}
+
+canvas {
+  opacity: 0.9;
 }
