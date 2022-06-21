@@ -1,23 +1,32 @@
 import './App.css';
-import React, { useEffect, useState } from 'react';
-import { Canvas } from '@react-three/fiber';
+import React, { useEffect } from 'react';
 import * as THREE from 'three';
 import { PointerLockControls } from "./lib/PointerLock";
 import Ready from "./components/Ready";
 import $ from "jquery";
 
+/* libs import */
+import { genCube, rotateCube } from './components/objects/Cube';
+/* *********** */
+
 function App() {
+  // Scene, Camera, Renderer 변수 선언 (three js로 3차원 세계를 표현하기 위한 필수 요소 3가지)
+  // scene에 오브젝트들을 추가, renderer에 scene과 camera를 담아 render()
   const scene = new THREE.Scene;
+  /* --- Camera Params ---
+    Camera(a, b, c, d)
+    a(field of view): 디스플레이에 표시되는 장면의 범위 도(degree) 단위
+    b(aspect ratio): 대부분 요소의 너비를 높이로 나눈 값을 사용
+    c(near 클리핑 평면): 카메라에서 near보다 가까운 객체는 렌더링X
+    d(far 클리핑 평면): 카메라에서 far보다 멀리 있는 객체는 렌더링X 
+  */
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
   const renderer = new THREE.WebGLRenderer();
 
-  /* Add First Person View */
+  /* Add First Person View (1인칭 카메라) */
   const controls = new PointerLockControls(camera, document.body);
 
-  const geometry = new THREE.BoxGeometry();
-  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-  const cube = new THREE.Mesh(geometry, material);
-
+  /* Camera 움직임 제어 객체 */
   let CameraMoving = {
     cameraMoveZ: 0,
     cameraMovingZ: false,
@@ -27,11 +36,10 @@ function App() {
     xSpeed: 1,
   }
 
+  const centerCube = genCube(0x00ff00, [0, 0, 0]);
 
   renderer.setSize(window.innerWidth, window.innerHeight);
-
-  scene.add(cube);
-  // scene.add(plane);
+  scene.add(centerCube);
   scene.background = new THREE.Color(0x19324a);
   camera.position.z = 20;
 
@@ -44,18 +52,11 @@ function App() {
   }
 
   for(let i=0; i<20000; i++) {
-    const starMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
-    const star = new THREE.Mesh(geometry, starMaterial);
-    
     const positionX = getRandomPosition(2000);
     const positionY = getRandomPosition(2000);
     const positionZ = getRandomPosition(2000);
 
-    star.position.x = positionX;
-    star.position.y = positionY;
-    star.position.z = positionZ;
-
-    scene.add(star);
+    scene.add(genCube(0xFFFFFF, [positionX, positionY, positionZ]));
   }
   
 
@@ -106,11 +107,10 @@ function App() {
   const Animate = () => {
     requestAnimationFrame(Animate);
 
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
-
     if(CameraMoving.cameraMovingZ) { camera.translateZ(CameraMoving.cameraMoveZ); }
     if(CameraMoving.cameraMovingX) { camera.translateX(CameraMoving.cameraMoveX); }
+
+    rotateCube(centerCube, [0.01, 0.01, 0]);
 
     renderer.render(scene, camera);
   }
