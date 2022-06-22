@@ -12,7 +12,7 @@ import { genCube, rotateCube } from './components/objects/Cube';
 function App() {
   // Scene, Camera, Renderer 변수 선언 (three js로 3차원 세계를 표현하기 위한 필수 요소 3가지)
   // scene에 오브젝트들을 추가, renderer에 scene과 camera를 담아 render()
-  const scene = new THREE.Scene;
+  const scene = new THREE.Scene();
   /* --- Camera Params ---
     Camera(a, b, c, d)
     a(field of view): 디스플레이에 표시되는 장면의 범위 도(degree) 단위
@@ -20,7 +20,13 @@ function App() {
     c(near 클리핑 평면): 카메라에서 near보다 가까운 객체는 렌더링X
     d(far 클리핑 평면): 카메라에서 far보다 멀리 있는 객체는 렌더링X 
   */
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+  /* 카메라 가시거리 및 배경큐브 생성좌표제한 */
+  const visibleDistance = 1000;
+  const limitPosition = 5000;
+  const bgCubesLimit = 10000;
+
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, visibleDistance);
   const renderer = new THREE.WebGLRenderer();
 
   /* Add First Person View (1인칭 카메라) */
@@ -30,13 +36,14 @@ function App() {
   let CameraMoving = {
     cameraMoveZ: 0,
     cameraMovingZ: false,
-    zSpeed: 0.1,
+    zSpeed: 1,
     cameraMoveX: 0,
     cameraMovingX: false,
-    xSpeed: 0.1,
+    xSpeed: 1,
   }
 
   const centerCube = genCube(0x00ff00, [0, 0, 0]);
+  const bgCubes = [];
 
   renderer.setSize(window.innerWidth, window.innerHeight);
   scene.add(centerCube);
@@ -51,12 +58,14 @@ function App() {
     }
   }
 
-  for(let i=0; i<20000; i++) {
-    const positionX = getRandomPosition(2000);
-    const positionY = getRandomPosition(2000);
-    const positionZ = getRandomPosition(2000);
+  for(let i=0; i<bgCubesLimit; i++) {
+    const positionX = getRandomPosition(limitPosition);
+    const positionY = getRandomPosition(limitPosition);
+    const positionZ = getRandomPosition(limitPosition);
 
-    scene.add(genCube(0xFFFFFF, [positionX, positionY, positionZ]));
+    bgCubes.push(genCube(0xFFFFFF, [positionX, positionY, positionZ]));
+
+    scene.add(bgCubes[i]);
   }
   
 
