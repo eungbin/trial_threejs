@@ -21,10 +21,10 @@ function App() {
   let CameraMoving = {
     cameraMoveZ: 0,
     cameraMovingZ: false,
-    zSpeed: 1,
+    zSpeed: 0.1,
     cameraMoveX: 0,
     cameraMovingX: false,
-    xSpeed: 1,
+    xSpeed: 0.1,
   }
 
 
